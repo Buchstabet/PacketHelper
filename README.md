@@ -27,5 +27,5 @@ NameFunction sets the name of the player, which can be different from player to 
 You can set a clickevent: `NPC#setClickEvent()`
 
 ## Clickable
-`Hologram.class` and `NPC.class` inherit from Clickable.
+`NPC.class` inherits from Clickable.
 You can register a ClickEvent: `Clickable#registerClickEvent(BiConsumer<Player, PacketContainer> consumer, JavaPlugin javaPlugin)`

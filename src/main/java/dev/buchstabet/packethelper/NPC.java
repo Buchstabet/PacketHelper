@@ -38,7 +38,7 @@ public interface NPC extends Lookable<EntityPlayer>, Clickable<EntityPlayer> {
       Function<Player, String> nameFunction,
       JavaPlugin javaPlugin,
       Property property) {
-    return new NPCImpl(location, looking, nameFunction, javaPlugin, property).buildGameProfile();
+    return new NPCImpl(location, looking, nameFunction, javaPlugin, property).buildGameProfile().create();
   }
 
   @Getter
@@ -105,6 +105,9 @@ public interface NPC extends Lookable<EntityPlayer>, Clickable<EntityPlayer> {
       }
 
       PlayerConnection b = ((CraftPlayer) player).getHandle().playerConnection;
+
+      Bukkit.broadcastMessage(String.valueOf(b));
+
       b.sendPacket(
           new PacketPlayOutPlayerInfo(
               PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, entity));

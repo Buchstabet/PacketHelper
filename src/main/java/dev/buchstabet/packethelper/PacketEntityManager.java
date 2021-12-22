@@ -55,7 +55,7 @@ public class PacketEntityManager extends ArrayList<SpawnableDestroyable<? extend
                                               .getLocation()
                                               .distance(player.getLocation())
                                           < 20
-                                      && !spawnableDestroyable.contains(player)) {
+                                      && !spawnableDestroyable.contains(player.getUniqueId())) {
                                     spawnableDestroyable.add(player.getUniqueId());
                                     spawnableDestroyable.spawn(player);
                                   }
@@ -68,7 +68,7 @@ public class PacketEntityManager extends ArrayList<SpawnableDestroyable<? extend
                                   }
                                 })),
             10,
-            5);
+            1);
 
     return this;
   }

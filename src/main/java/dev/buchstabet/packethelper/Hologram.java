@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.Function;
 
-public interface Hologram extends SpawnableDestroyable<EntityArmorStand> {
+public interface Hologram extends SpawnableDestroyable<EntityArmorStand>, Clickable<EntityArmorStand> {
 
   static Hologram create(Function<Player, String> nameFunction, Location location) {
     return new HologramImpl(nameFunction, location).create();

@@ -1,10 +1,5 @@
 package dev.buchstabet.packethelper;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import lombok.*;
@@ -18,63 +13,70 @@ import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_8_R3.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public interface NPC extends Lookable<EntityPlayer> {
+public interface NPC extends Lookable<EntityPlayer>, Clickable<EntityPlayer> {
 
-  NPC setClickEvent(JavaPlugin javaPlugin, BiConsumer<Player, PacketContainer> consumer);
+  NPC teleport(Collection<Player> players, Location location);
+
+  NPC teleport(Location location);
+
+  void equip(Player player, int slot, org.bukkit.inventory.ItemStack itemStack);
 
   static NPC create(
       Location location,
       boolean looking,
       Function<Player, String> nameFunction,
-      JavaPlugin javaPlugin) {
-    return new NPCImpl(location, looking, nameFunction, javaPlugin);
+      JavaPlugin javaPlugin,
+      Property property) {
+    return new NPCImpl(location, looking, nameFunction, javaPlugin, property).buildGameProfile();
   }
 
   @Getter
   class NPCImpl extends ArrayList<UUID> implements NPC {
-    private final Location location;
-    private final Property skinData = null;
+    private Location location;
+    @Nullable Property skinData;
     private GameProfile gameProfile;
     private final String name = "BOB";
     private EntityPlayer entity;
 
-    private boolean looking = false;
+    private final boolean looking;
     private final Function<Player, String> nameFunction;
     private final JavaPlugin javaPlugin;
 
     private NPCImpl(
-        Location location,
+        @NotNull Location location,
         boolean looking,
-        Function<Player, String> nameFunction,
-        JavaPlugin javaPlugin) {
+        @NotNull Function<Player, String> nameFunction,
+        @NotNull JavaPlugin javaPlugin,
+        @Nullable Property property) {
       this.location = location;
       this.looking = looking;
       this.nameFunction = nameFunction;
       this.javaPlugin = javaPlugin;
+      this.skinData = property;
     }
 
-    public NPC setClickEvent(JavaPlugin javaPlugin, BiConsumer<Player, PacketContainer> consumer) {
-      ProtocolLibrary.getProtocolManager()
-          .addPacketListener(
-              new PacketAdapter(javaPlugin, PacketType.Play.Client.USE_ENTITY) {
-                @Override
-                public void onPacketReceiving(PacketEvent event) {
-                  int entityId = (int) event.getPacket().getModifier().getValues().get(0);
-                  if (entityId != entity.getId()) {
-                    return;
-                  }
+    @Override
+    public NPC teleport(Collection<Player> players, Location location) {
+      this.location = location;
+      getEntity().setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+      players.forEach(this::teleport);
+      return this;
+    }
 
-                  consumer.accept(event.getPlayer(), event.getPacket());
-                }
-              });
+    @Override
+    public NPC teleport(Location location) {
+      teleport(Bukkit.getOnlinePlayers().stream().filter(player -> contains(player.getUniqueId())).collect(Collectors.toList()), location);
       return this;
     }
 
@@ -113,8 +115,7 @@ public interface NPC extends Lookable<EntityPlayer> {
       dataWatcher.watch(10, (byte) 0xFF);
 
       b.sendPacket(packetPlayOutNamedEntitySpawn);
-      b.sendPacket(
-          new PacketPlayOutEntityHeadRotation(entity, (byte) (location.getYaw() * 256 / 360)));
+      teleport(player);
 
       Bukkit.getScheduler()
           .runTaskLater(
@@ -190,6 +191,13 @@ public interface NPC extends Lookable<EntityPlayer> {
           new PacketPlayOutEntityEquipment(
               entity.getId(), slot, CraftItemStack.asNMSCopy(itemStack));
       ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutEntityEquipment);
+    }
+
+    public void teleport(Player player) {
+      PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+      PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport(getEntity());
+      connection.sendPacket(packet);
+      connection.sendPacket(new PacketPlayOutEntityHeadRotation(entity, (byte) (location.getYaw() * 256 / 360)));
     }
 
     public NPCImpl create() {

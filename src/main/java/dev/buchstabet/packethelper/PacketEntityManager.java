@@ -4,20 +4,20 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.function.Consumer;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PacketEntityManager extends ArrayList<SpawnableDestroyable<? extends EntityLiving>>
-    implements Consumer<JavaPlugin>, Listener {
+    implements Listener {
 
   public static PacketEntityManager create(JavaPlugin javaPlugin) {
-    PacketEntityManager packetEntityManager = new PacketEntityManager();
-    packetEntityManager.accept(javaPlugin);
-    return packetEntityManager;
+    return new PacketEntityManager().start(javaPlugin);
   }
 
   public void register(SpawnableDestroyable<? extends EntityLiving> spawnableDestroyable) {
@@ -28,8 +28,7 @@ public class PacketEntityManager extends ArrayList<SpawnableDestroyable<? extend
     remove(spawnableDestroyable);
   }
 
-  @Override
-  public void accept(JavaPlugin javaPlugin) {
+  private PacketEntityManager start(JavaPlugin javaPlugin) {
     javaPlugin.getServer().getPluginManager().registerEvents(this, javaPlugin);
 
     Bukkit.getScheduler()
@@ -62,7 +61,7 @@ public class PacketEntityManager extends ArrayList<SpawnableDestroyable<? extend
                                   }
 
                                   if (spawnableDestroyable instanceof Lookable) {
-                                    Lookable lookable = (Lookable) spawnableDestroyable;
+                                    Lookable<?> lookable = (Lookable<?>) spawnableDestroyable;
                                     if (lookable.isLooking()) {
                                       lookable.look(player);
                                     }
@@ -70,5 +69,7 @@ public class PacketEntityManager extends ArrayList<SpawnableDestroyable<? extend
                                 })),
             10,
             5);
+
+    return this;
   }
 }

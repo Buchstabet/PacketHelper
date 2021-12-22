@@ -1,7 +1,11 @@
-package dev.buchstabet.packethelper;
+package dev.buchstabet.packethelper.implementation;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import dev.buchstabet.packethelper.Clickable;
+import dev.buchstabet.packethelper.Rotatable;
+import dev.buchstabet.packethelper.Lookable;
+import dev.buchstabet.packethelper.PacketEntity;
 import lombok.*;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
@@ -18,17 +22,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-public interface NPC extends Lookable<EntityPlayer>, Clickable<EntityPlayer> {
-
-  NPC teleport(Collection<Player> players, Location location);
-
-  NPC teleport(Location location);
+public interface NPC extends PacketEntity<EntityPlayer>, Lookable<EntityPlayer>, Clickable<EntityPlayer> {
 
   void equip(Player player, int slot, org.bukkit.inventory.ItemStack itemStack);
 
@@ -36,9 +34,28 @@ public interface NPC extends Lookable<EntityPlayer>, Clickable<EntityPlayer> {
       Location location,
       boolean looking,
       Function<Player, String> nameFunction,
+      JavaPlugin javaPlugin) {
+    return create(location, looking, nameFunction, javaPlugin, (Property) null);
+  }
+
+  static NPC create(
+          Location location,
+          boolean looking,
+          Function<Player, String> nameFunction,
+          JavaPlugin javaPlugin,
+          String[] skinData) {
+    return create(location, looking, nameFunction, javaPlugin, new Property("textures", skinData[0], skinData[1]));
+  }
+
+  static NPC create(
+      Location location,
+      boolean looking,
+      Function<Player, String> nameFunction,
       JavaPlugin javaPlugin,
       Property property) {
-    return new NPCImpl(location, looking, nameFunction, javaPlugin, property).buildGameProfile().create();
+    return new NPCImpl(location, looking, nameFunction, javaPlugin, property)
+        .buildGameProfile()
+        .create();
   }
 
   @Getter
@@ -67,17 +84,15 @@ public interface NPC extends Lookable<EntityPlayer>, Clickable<EntityPlayer> {
     }
 
     @Override
-    public NPC teleport(Collection<Player> players, Location location) {
+    public void setLocation(Location location) {
       this.location = location;
-      getEntity().setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
-      players.forEach(this::teleport);
-      return this;
-    }
-
-    @Override
-    public NPC teleport(Location location) {
-      teleport(Bukkit.getOnlinePlayers().stream().filter(player -> contains(player.getUniqueId())).collect(Collectors.toList()), location);
-      return this;
+      getEntity()
+              .setLocation(
+                      location.getX(),
+                      location.getY(),
+                      location.getZ(),
+                      location.getYaw(),
+                      location.getPitch());
     }
 
     public NPCImpl buildGameProfile() {
@@ -170,35 +185,11 @@ public interface NPC extends Lookable<EntityPlayer>, Clickable<EntityPlayer> {
       return null;
     }
 
-    @Override
-    public void look(Player player) {
-      Location location = this.location.clone();
-      location.setDirection(player.getLocation().toVector().subtract(location.toVector()));
-
-      PlayerConnection b = ((CraftPlayer) player).getHandle().playerConnection;
-      b.sendPacket(
-          new PacketPlayOutEntityHeadRotation(entity, (byte) (location.getYaw() * 256 / 360)));
-      entity.setLocation(
-          location.getX(),
-          location.getY(),
-          location.getZ(),
-          location.getYaw(),
-          location.getPitch());
-      b.sendPacket(new PacketPlayOutEntityTeleport(entity));
-    }
-
     public void equip(Player player, int slot, org.bukkit.inventory.ItemStack itemStack) {
       PacketPlayOutEntityEquipment packetPlayOutEntityEquipment =
           new PacketPlayOutEntityEquipment(
               entity.getId(), slot, CraftItemStack.asNMSCopy(itemStack));
       ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutEntityEquipment);
-    }
-
-    public void teleport(Player player) {
-      PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-      PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport(getEntity());
-      connection.sendPacket(packet);
-      connection.sendPacket(new PacketPlayOutEntityHeadRotation(entity, (byte) (location.getYaw() * 256 / 360)));
     }
 
     public NPCImpl create() {

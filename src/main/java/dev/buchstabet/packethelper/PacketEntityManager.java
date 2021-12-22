@@ -1,36 +1,42 @@
 package dev.buchstabet.packethelper;
 
+import dev.buchstabet.packethelper.implementation.PacketAnimal;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import net.minecraft.server.v1_8_R3.EntityLiving;
+import net.minecraft.server.v1_8_R3.EntityVillager;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.function.Consumer;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PacketEntityManager extends ArrayList<SpawnableDestroyable<? extends EntityLiving>>
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class PacketEntityManager extends ArrayList<PacketEntity<? extends EntityLiving>>
     implements Listener {
+
+  private int viewDistance = 40;
 
   public static PacketEntityManager create(JavaPlugin javaPlugin) {
     return new PacketEntityManager().start(javaPlugin);
   }
 
-  public void register(SpawnableDestroyable<? extends EntityLiving> spawnableDestroyable) {
-    add(spawnableDestroyable);
+  public static PacketEntityManager create(JavaPlugin javaPlugin, int viewDistance) {
+    return new PacketEntityManager(viewDistance).start(javaPlugin);
   }
 
-  public void unregister(SpawnableDestroyable<? extends EntityLiving> spawnableDestroyable) {
-    remove(spawnableDestroyable);
+  public void register(PacketEntity<? extends EntityLiving> packetEntity) {
+    add(packetEntity);
+  }
+
+  public void unregister(PacketEntity<? extends EntityLiving> packetEntity) {
+    remove(packetEntity);
   }
 
   private PacketEntityManager start(JavaPlugin javaPlugin) {
     javaPlugin.getServer().getPluginManager().registerEvents(this, javaPlugin);
-
     Bukkit.getScheduler()
         .runTaskTimerAsynchronously(
             javaPlugin,
@@ -39,29 +45,26 @@ public class PacketEntityManager extends ArrayList<SpawnableDestroyable<? extend
                     .forEach(
                         player ->
                             forEach(
-                                spawnableDestroyable -> {
+                                packetEntity -> {
                                   if (!(player
                                       .getWorld()
-                                      .equals(spawnableDestroyable.getLocation().getWorld())))
-                                    return;
-                                  if (spawnableDestroyable
+                                      .equals(packetEntity.getLocation().getWorld()))) return;
+                                  if (packetEntity.getLocation().distance(player.getLocation())
+                                          > viewDistance
+                                      && packetEntity.contains(player.getUniqueId())) {
+                                    packetEntity.remove(player.getUniqueId());
+                                    packetEntity.destroy(player);
+                                  } else if (packetEntity
                                               .getLocation()
                                               .distance(player.getLocation())
-                                          > 20
-                                      && spawnableDestroyable.contains(player.getUniqueId())) {
-                                    spawnableDestroyable.remove(player.getUniqueId());
-                                    spawnableDestroyable.destroy(player);
-                                  } else if (spawnableDestroyable
-                                              .getLocation()
-                                              .distance(player.getLocation())
-                                          < 20
-                                      && !spawnableDestroyable.contains(player.getUniqueId())) {
-                                    spawnableDestroyable.add(player.getUniqueId());
-                                    spawnableDestroyable.spawn(player);
+                                          < viewDistance
+                                      && !packetEntity.contains(player.getUniqueId())) {
+                                    packetEntity.add(player.getUniqueId());
+                                    packetEntity.spawn(player);
                                   }
 
-                                  if (spawnableDestroyable instanceof Lookable) {
-                                    Lookable<?> lookable = (Lookable<?>) spawnableDestroyable;
+                                  if (packetEntity instanceof Lookable) {
+                                    Lookable<?> lookable = (Lookable<?>) packetEntity;
                                     if (lookable.isLooking()) {
                                       lookable.look(player);
                                     }

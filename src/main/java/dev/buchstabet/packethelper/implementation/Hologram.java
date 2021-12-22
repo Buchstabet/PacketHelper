@@ -1,5 +1,6 @@
-package dev.buchstabet.packethelper;
+package dev.buchstabet.packethelper.implementation;
 
+import dev.buchstabet.packethelper.PacketEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.Function;
 
-public interface Hologram extends SpawnableDestroyable<EntityArmorStand> {
+public interface Hologram extends PacketEntity<EntityArmorStand> {
 
   static Hologram create(Function<Player, String> nameFunction, Location location) {
     return new HologramImpl(nameFunction, location).create();

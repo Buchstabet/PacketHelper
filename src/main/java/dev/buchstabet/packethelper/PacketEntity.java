@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.UUID;
 
-public interface SpawnableDestroyable<V extends EntityLiving> extends List<UUID> {
+public interface PacketEntity<V extends EntityLiving> extends List<UUID> {
 
   void spawn(Player player);
 

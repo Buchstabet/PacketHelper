@@ -3,6 +3,9 @@ First you need a instance of `PacketEntityManager.class`.
 Create a new instance using `PacketEntityManager.create(JavaPlugin);`.
 You have to register each NPC or hologram in the manager, you do that with `PacketEntityManager#register()`.
 
+# Installation
+You have to compile the API into the finished plugin.
+
 ## NPC
 How to create a NPC?
 `NPC.create(Location location, boolean looking, Function<Player, String> nameFunction, JavaPlugin javaPlugin)`

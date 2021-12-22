@@ -106,8 +106,6 @@ public interface NPC extends Lookable<EntityPlayer>, Clickable<EntityPlayer> {
 
       PlayerConnection b = ((CraftPlayer) player).getHandle().playerConnection;
 
-      Bukkit.broadcastMessage(String.valueOf(b));
-
       b.sendPacket(
           new PacketPlayOutPlayerInfo(
               PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, entity));

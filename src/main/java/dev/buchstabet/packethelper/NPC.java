@@ -28,6 +28,8 @@ import java.util.function.Function;
 
 public interface NPC extends Lookable<EntityPlayer> {
 
+  NPC setClickEvent(JavaPlugin javaPlugin, BiConsumer<Player, PacketContainer> consumer);
+
   static NPC create(
       Location location,
       boolean looking,
@@ -36,20 +38,15 @@ public interface NPC extends Lookable<EntityPlayer> {
     return new NPCImpl(location, looking, nameFunction, javaPlugin);
   }
 
-  static NPC create(
-      Location location, Function<Player, String> nameFunction, JavaPlugin javaPlugin) {
-    return new NPCImpl(location, nameFunction, javaPlugin);
-  }
-
   @Getter
-  @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
   class NPCImpl extends ArrayList<UUID> implements NPC {
     private final Location location;
     private final Property skinData = null;
     private GameProfile gameProfile;
     private final String name = "BOB";
     private EntityPlayer entity;
-    @Setter private boolean looking = false;
+
+    private boolean looking = false;
     private final Function<Player, String> nameFunction;
     private final JavaPlugin javaPlugin;
 
@@ -64,8 +61,7 @@ public interface NPC extends Lookable<EntityPlayer> {
       this.javaPlugin = javaPlugin;
     }
 
-    public NPCImpl setClickEvent(
-        JavaPlugin javaPlugin, BiConsumer<Player, PacketContainer> consumer) {
+    public NPC setClickEvent(JavaPlugin javaPlugin, BiConsumer<Player, PacketContainer> consumer) {
       ProtocolLibrary.getProtocolManager()
           .addPacketListener(
               new PacketAdapter(javaPlugin, PacketType.Play.Client.USE_ENTITY) {

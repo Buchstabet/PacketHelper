@@ -18,4 +18,5 @@ public interface SpawnableDestroyable<V extends EntityLiving> extends List<UUID>
   Location getLocation();
 
   V getEntity();
+
 }

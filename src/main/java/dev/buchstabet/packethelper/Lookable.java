@@ -9,5 +9,4 @@ public interface Lookable<V extends EntityLiving> extends SpawnableDestroyable<V
 
   void look(Player player);
 
-  void setLooking(boolean b);
 }

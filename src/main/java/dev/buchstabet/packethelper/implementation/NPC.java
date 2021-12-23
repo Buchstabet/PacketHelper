@@ -2,10 +2,7 @@ package dev.buchstabet.packethelper.implementation;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import dev.buchstabet.packethelper.Clickable;
-import dev.buchstabet.packethelper.Rotatable;
-import dev.buchstabet.packethelper.Lookable;
-import dev.buchstabet.packethelper.PacketEntity;
+import dev.buchstabet.packethelper.*;
 import lombok.*;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
@@ -26,9 +23,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
-public interface NPC extends PacketEntity<EntityPlayer>, Lookable<EntityPlayer>, Clickable<EntityPlayer> {
-
-  void equip(Player player, int slot, org.bukkit.inventory.ItemStack itemStack);
+public interface NPC extends PacketEntity<EntityPlayer>, Lookable<EntityPlayer>, Clickable<EntityPlayer>, Equipable<EntityPlayer> {
 
   static NPC create(
       Location location,
@@ -153,13 +148,6 @@ public interface NPC extends PacketEntity<EntityPlayer>, Lookable<EntityPlayer>,
                 b.sendPacket(packetPlayOutPlayerInfo);
               },
               20);
-    }
-
-    public void equip(Player player, int slot, org.bukkit.inventory.ItemStack itemStack) {
-      PacketPlayOutEntityEquipment packetPlayOutEntityEquipment =
-          new PacketPlayOutEntityEquipment(
-              entity.getId(), slot, CraftItemStack.asNMSCopy(itemStack));
-      ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutEntityEquipment);
     }
 
     public NPCImpl create() {

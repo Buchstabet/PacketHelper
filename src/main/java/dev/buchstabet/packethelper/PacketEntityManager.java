@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.EntityVillager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -68,6 +69,15 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
                                     if (lookable.isLooking()) {
                                       lookable.look(player);
                                     }
+                                  }
+
+                                  if (packetEntity instanceof AutoRotatable) {
+                                    AutoRotatable<?> autoRotatable =
+                                        (AutoRotatable<?>) packetEntity;
+                                    Location location = autoRotatable.getLocation();
+                                    location.setYaw(location.getYaw() + 5);
+                                    autoRotatable.setLocation(location);
+                                    autoRotatable.teleport(player);
                                   }
                                 })),
             10,

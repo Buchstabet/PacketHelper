@@ -1,7 +1,6 @@
 package dev.buchstabet.packethelper;
 
-import net.minecraft.server.v1_8_R3.EntityLiving;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
@@ -14,7 +13,12 @@ import java.util.UUID;
 
 public interface PacketEntity<V extends EntityLiving> extends List<UUID> {
 
-  void spawn(Player player);
+  default void spawn(Player player) {
+    PlayerConnection playerConnection = ((CraftPlayer) player).getHandle().playerConnection;
+    playerConnection.sendPacket(new PacketPlayOutSpawnEntityLiving(getEntity()));
+    playerConnection.sendPacket(
+            new PacketPlayOutEntityMetadata(getEntity().getId(), getEntity().getDataWatcher(), true));
+  }
 
   default void destroy(Player player) {
     ((CraftPlayer) player)

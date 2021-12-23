@@ -49,11 +49,5 @@ public interface Hologram extends PacketEntity<EntityArmorStand> {
       PacketPlayOutSpawnEntityLiving packet = new PacketPlayOutSpawnEntityLiving(entity);
       playerConnection.sendPacket(packet);
     }
-
-    @Override
-    public void destroy(Player player) {
-      PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(entity.getId());
-      ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-    }
   }
 }

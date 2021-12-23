@@ -104,12 +104,8 @@ public interface NPC extends PacketEntity<EntityPlayer>, Lookable<EntityPlayer>,
       return this;
     }
 
-    @SneakyThrows
     public void spawn(Player player) {
-      Field field = GameProfile.class.getDeclaredField("name");
-      field.setAccessible(true);
-      field.set(gameProfile, nameFunction.apply(player));
-      field.setAccessible(false);
+      PacketEntity.setValue(gameProfile, "name", nameFunction.apply(player));
 
       if (skinData == null) {
         gameProfile.getProperties().removeAll("textures");
@@ -150,39 +146,13 @@ public interface NPC extends PacketEntity<EntityPlayer>, Lookable<EntityPlayer>,
 
                 List<PacketPlayOutPlayerInfo.PlayerInfoData> players =
                     (List<PacketPlayOutPlayerInfo.PlayerInfoData>)
-                        getValue(packetPlayOutPlayerInfo, "b");
+                            PacketEntity.getValue(packetPlayOutPlayerInfo, "b");
                 players.add(data);
-                setValue(packetPlayOutPlayerInfo, "b", players);
 
+                PacketEntity.setValue(packetPlayOutPlayerInfo, "b", players);
                 b.sendPacket(packetPlayOutPlayerInfo);
               },
               20);
-    }
-
-    public void destroy(Player player) {
-      PlayerConnection b = ((CraftPlayer) player).getHandle().playerConnection;
-      b.sendPacket(new PacketPlayOutEntityDestroy(entity.getId()));
-    }
-
-    private void setValue(Object obj, String name, Object value) {
-      try {
-        Field field = obj.getClass().getDeclaredField(name);
-        field.setAccessible(true);
-        field.set(obj, value);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
-
-    private Object getValue(Object obj, String name) {
-      try {
-        Field field = obj.getClass().getDeclaredField(name);
-        field.setAccessible(true);
-        return field.get(obj);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      return null;
     }
 
     public void equip(Player player, int slot, org.bukkit.inventory.ItemStack itemStack) {

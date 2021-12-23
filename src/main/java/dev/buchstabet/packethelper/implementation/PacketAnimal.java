@@ -41,14 +41,6 @@ public class PacketAnimal<V extends EntityInsentient> extends ArrayList<UUID> im
   }
 
   @Override
-  public void destroy(Player player) {
-    ((CraftPlayer) player)
-        .getHandle()
-        .playerConnection
-        .sendPacket(new PacketPlayOutEntityDestroy(entity.getId()));
-  }
-
-  @Override
   public void setLocation(Location location) {
     this.location = location;
     entity.setLocation(

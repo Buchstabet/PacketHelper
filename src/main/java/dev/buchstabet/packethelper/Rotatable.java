@@ -34,4 +34,6 @@ public interface Rotatable<V extends EntityLiving> extends Teleportable<V> {
               rotate(player, location.getYaw());
             });
   }
+
+
 }

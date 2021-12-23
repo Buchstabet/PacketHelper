@@ -7,12 +7,15 @@ import lombok.NoArgsConstructor;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -20,6 +23,8 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
     implements Listener {
 
   private int viewDistance = 40;
+
+  private final List<Player> players = new ArrayList<>();
 
   public static PacketEntityManager create(JavaPlugin javaPlugin) {
     return new PacketEntityManager().start(javaPlugin);
@@ -43,45 +48,42 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
         .runTaskTimerAsynchronously(
             javaPlugin,
             () ->
-                Bukkit.getOnlinePlayers()
-                    .forEach(
-                        player ->
-                            new ArrayList<>(this)
-                                .forEach(
-                                    packetEntity -> {
-                                      if (!(player
-                                          .getWorld()
-                                          .equals(packetEntity.getLocation().getWorld()))) return;
-                                      if (packetEntity.getLocation().distance(player.getLocation())
-                                              > viewDistance
-                                          && packetEntity.contains(player.getUniqueId())) {
-                                        packetEntity.remove(player.getUniqueId());
-                                        packetEntity.destroy(player);
-                                      } else if (packetEntity
-                                                  .getLocation()
-                                                  .distance(player.getLocation())
-                                              < viewDistance
-                                          && !packetEntity.contains(player.getUniqueId())) {
-                                        packetEntity.add(player.getUniqueId());
-                                        packetEntity.spawn(player);
-                                      }
+                players.forEach(player -> forEach(
+                        packetEntity -> {
+                          if (!(player.getWorld().equals(packetEntity.getLocation().getWorld())))
+                            return;
+                          if (packetEntity.getLocation().distance(player.getLocation())
+                                  > viewDistance
+                              && packetEntity.contains(player.getUniqueId())) {
+                            packetEntity.remove(player.getUniqueId());
+                            packetEntity.destroy(player);
+                          } else if (packetEntity.getLocation().distance(player.getLocation())
+                                  < viewDistance
+                              && !packetEntity.contains(player.getUniqueId())) {
+                            packetEntity.add(player.getUniqueId());
+                            packetEntity.spawn(player);
+                          } else {
 
-                                      if (packetEntity instanceof Lookable) {
-                                        Lookable<?> lookable = (Lookable<?>) packetEntity;
-                                        if (lookable.isLooking()) {
-                                          lookable.look(player);
-                                        }
-                                      }
+                            if (packetEntity instanceof Lookable) {
+                              Lookable<?> lookable = (Lookable<?>) packetEntity;
+                              if (lookable.isLooking()) {
+                                lookable.look(player);
+                              }
+                            }
 
-                                      if (packetEntity instanceof AutoRotatable) {
-                                        AutoRotatable<?> autoRotatable =
-                                            (AutoRotatable<?>) packetEntity;
-                                        Location location = autoRotatable.getLocation();
-                                        location.setYaw(location.getYaw() + 1);
-                                        autoRotatable.setLocation(location);
-                                        autoRotatable.teleport(player);
-                                      }
-                                    })),
+                            if (packetEntity instanceof AutoRotatable) {
+                              AutoRotatable<?> autoRotatable = (AutoRotatable<?>) packetEntity;
+                              Location location = autoRotatable.getLocation();
+                              location.setYaw(location.getYaw() + autoRotatable.getSpeed());
+                              autoRotatable.setLocation(location);
+                              autoRotatable.teleport(player);
+                              if (packetEntity instanceof Rotatable) {
+                                Rotatable<?> rotatable = (Rotatable<?>) packetEntity;
+                                rotatable.rotate(player, location.getYaw());
+                              }
+                            }
+                          }
+                        })),
             10,
             1);
 
@@ -90,6 +92,12 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
 
   @EventHandler
   public void onQuit(PlayerQuitEvent e) {
+    players.remove(e.getPlayer());
     forEach(packetEntity -> packetEntity.remove(e.getPlayer().getUniqueId()));
+  }
+
+  @EventHandler
+  public void onJoin(PlayerJoinEvent e) {
+    players.add(e.getPlayer());
   }
 }

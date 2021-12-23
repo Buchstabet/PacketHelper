@@ -1,0 +1,7 @@
+name: PacketHeleperTesting
+version: '${project.version}'
+main: dev.buchstabet.packethelper.packethelepertesting.PacketHeleperTesting
+depend:
+  - ProtocolLib
+loadbefore:
+  - ProtocolLib

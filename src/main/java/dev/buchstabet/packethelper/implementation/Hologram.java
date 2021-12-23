@@ -7,14 +7,13 @@ import lombok.RequiredArgsConstructor;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.Function;
 
-public interface Hologram extends PacketEntity<EntityArmorStand> {
+public interface Hologram extends PacketEntity<EntityArmorStand>  {
 
   static Hologram create(Function<Player, String> nameFunction, Location location) {
     return new HologramImpl(nameFunction, location).create();

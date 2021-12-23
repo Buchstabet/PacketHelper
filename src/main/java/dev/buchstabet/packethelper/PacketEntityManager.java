@@ -8,10 +8,13 @@ import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.EntityVillager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -45,41 +48,46 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
                 Bukkit.getOnlinePlayers()
                     .forEach(
                         player ->
-                            forEach(
-                                packetEntity -> {
-                                  if (!(player
-                                      .getWorld()
-                                      .equals(packetEntity.getLocation().getWorld()))) return;
-                                  if (packetEntity.getLocation().distance(player.getLocation())
-                                          > viewDistance
-                                      && packetEntity.contains(player.getUniqueId())) {
-                                    packetEntity.remove(player.getUniqueId());
-                                    packetEntity.destroy(player);
-                                  } else if (packetEntity
-                                              .getLocation()
-                                              .distance(player.getLocation())
-                                          < viewDistance
-                                      && !packetEntity.contains(player.getUniqueId())) {
-                                    packetEntity.add(player.getUniqueId());
-                                    packetEntity.spawn(player);
-                                  }
+                            new ArrayList<>(this)
+                                .forEach(
+                                    packetEntity -> {
+                                      if (!contains(packetEntity)) {
+                                        return;
+                                      }
 
-                                  if (packetEntity instanceof Lookable) {
-                                    Lookable<?> lookable = (Lookable<?>) packetEntity;
-                                    if (lookable.isLooking()) {
-                                      lookable.look(player);
-                                    }
-                                  }
+                                      if (!(player
+                                          .getWorld()
+                                          .equals(packetEntity.getLocation().getWorld()))) return;
+                                      if (packetEntity.getLocation().distance(player.getLocation())
+                                              > viewDistance
+                                          && packetEntity.contains(player.getUniqueId())) {
+                                        packetEntity.remove(player.getUniqueId());
+                                        packetEntity.destroy(player);
+                                      } else if (packetEntity
+                                                  .getLocation()
+                                                  .distance(player.getLocation())
+                                              < viewDistance
+                                          && !packetEntity.contains(player.getUniqueId())) {
+                                        packetEntity.add(player.getUniqueId());
+                                        packetEntity.spawn(player);
+                                      }
 
-                                  if (packetEntity instanceof AutoRotatable) {
-                                    AutoRotatable<?> autoRotatable =
-                                        (AutoRotatable<?>) packetEntity;
-                                    Location location = autoRotatable.getLocation();
-                                    location.setYaw(location.getYaw() + 5);
-                                    autoRotatable.setLocation(location);
-                                    autoRotatable.teleport(player);
-                                  }
-                                })),
+                                      if (packetEntity instanceof Lookable) {
+                                        Lookable<?> lookable = (Lookable<?>) packetEntity;
+                                        if (lookable.isLooking()) {
+                                          lookable.look(player);
+                                        }
+                                      }
+
+                                      if (packetEntity instanceof AutoRotatable) {
+                                        AutoRotatable<?> autoRotatable =
+                                            (AutoRotatable<?>) packetEntity;
+                                        Location location = autoRotatable.getLocation();
+                                        location.setYaw(location.getYaw() + 1);
+                                        autoRotatable.setLocation(location);
+                                        autoRotatable.teleport(player);
+                                      }
+                                    })),
             10,
             1);
 

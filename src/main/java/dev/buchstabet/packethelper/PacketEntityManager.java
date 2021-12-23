@@ -5,16 +5,14 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import net.minecraft.server.v1_8_R3.EntityLiving;
-import net.minecraft.server.v1_8_R3.EntityVillager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -51,10 +49,6 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
                             new ArrayList<>(this)
                                 .forEach(
                                     packetEntity -> {
-                                      if (!contains(packetEntity)) {
-                                        return;
-                                      }
-
                                       if (!(player
                                           .getWorld()
                                           .equals(packetEntity.getLocation().getWorld()))) return;
@@ -92,5 +86,10 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
             1);
 
     return this;
+  }
+
+  @EventHandler
+  public void onQuit(PlayerQuitEvent e) {
+    forEach(packetEntity -> packetEntity.remove(e.getPlayer().getUniqueId()));
   }
 }

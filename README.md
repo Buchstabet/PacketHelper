@@ -8,25 +8,25 @@ You have to compile the API into the finished plugin. ProtocolLib is required.
 
 ## Implementations
 
-### dev.buchstabet.packethelper.implementation.NPC (PacketEntity, Lookable, Clickable, Equipable)
+### NPC (PacketEntity, Lookable, Clickable, Equipable)
 How to create a NPC?
 `NPC.create(Location location, boolean looking, Function<Player, String> nameFunction, JavaPlugin javaPlugin)`
 
 #### NameFunction?
 NameFunction sets the name of the npc, which can be different from player to player.
 
-### dev.buchstabet.packethelper.implementation.Hologram (PacketEntity)
+### Hologram (PacketEntity)
 How to create a Hologram?
 `Hologram.create(Function<Player, String> nameFunction, Location location)`
 
 #### NameFunction?
 NameFunction sets the text of the hologram, which can be different from player to player.
 
-### dev.buchstabet.packethelper.implementation.RotatingHead (PacketEntity, AutoRotatable, Equipable)
-You can create rotating heads: `new RotatingHead(String)`
+### RotatingHead (PacketEntity, AutoRotatable, Equipable)
+You can create rotating heads: `new RotatingHead(String).create(Location location)`
 
-### dev.buchstabet.packethelper.implementation.PacketAnimal (PacketEntity, Clickable, Lookable, Equipable)
-You can create any Entity using packets witch inherits from `EntityInsentient.java`
+### PacketAnimal (PacketEntity, Clickable, Lookable, Equipable)
+You can create any Entity using packets: `new PacketAnimal<V extends EntityInsentient>().create(Location location)`
 
 ## Properties (Inheritances)
 

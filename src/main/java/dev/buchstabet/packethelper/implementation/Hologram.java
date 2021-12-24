@@ -1,49 +1,43 @@
 package dev.buchstabet.packethelper.implementation;
 
-import dev.buchstabet.packethelper.PacketEntity;
-import lombok.AccessLevel;
+import dev.buchstabet.packethelper.property.PacketEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.Function;
 
-public interface Hologram extends PacketEntity<EntityArmorStand>  {
+@Getter
+@RequiredArgsConstructor
+public class Hologram extends ArrayList<UUID> implements PacketEntity<EntityArmorStand> {
 
-  static Hologram create(Function<Player, String> nameFunction, Location location) {
-    return new HologramImpl(nameFunction, location).create();
+  private final Function<Player, String> nameFunction;
+  private final Location location;
+  private EntityArmorStand entity;
+  @Nullable private final Function<Player, Boolean> allowed;
+
+  public Hologram(@Nullable Function<Player, String> nameFunction, Location location) {
+    this(nameFunction, location, null);
   }
 
-  @Getter
-  @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-  class HologramImpl extends ArrayList<UUID> implements Hologram {
+  @Override
+  public void run() {
+    entity = new EntityArmorStand(((CraftWorld) location.getWorld()).getHandle());
+    entity.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+    entity.setCustomNameVisible(true);
+    entity.setInvisible(true);
+  }
 
-    private final Function<Player, String> nameFunction;
-    private final Location location;
-    private EntityArmorStand entity;
-
-    private HologramImpl create() {
-      entity = new EntityArmorStand(((CraftWorld) location.getWorld()).getHandle());
-      entity.setLocation(
-          location.getX(),
-          location.getY(),
-          location.getZ(),
-          location.getYaw(),
-          location.getPitch());
-      entity.setCustomNameVisible(true);
-      entity.setInvisible(true);
-      return this;
-    }
-
-    @Override
-    public void spawn(Player player) {
-      entity.setCustomName(nameFunction.apply(player));
-      Hologram.super.spawn(player);
-    }
+  @Override
+  public void spawn(Player player) {
+    if (nameFunction == null) throw new NullPointerException("nameFunction could not be null");
+    entity.setCustomName(nameFunction.apply(player));
+    PacketEntity.super.spawn(player);
   }
 }

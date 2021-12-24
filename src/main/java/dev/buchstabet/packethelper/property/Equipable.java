@@ -1,4 +1,4 @@
-package dev.buchstabet.packethelper;
+package dev.buchstabet.packethelper.property;
 
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityEquipment;

@@ -1,4 +1,4 @@
-package dev.buchstabet.packethelper;
+package dev.buchstabet.packethelper.property;
 
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityTeleport;
@@ -21,7 +21,21 @@ public interface Teleportable<V extends EntityLiving> extends List<UUID> {
       Bukkit.getOnlinePlayers().stream().filter(player -> contains(player.getUniqueId())).forEach(this::teleport);
   }
 
-  void setLocation(Location location);
+  default void setLocation(Location location) {
+    this.getLocation().setX(location.getX());
+    this.getLocation().setY(location.getY());
+    this.getLocation().setZ(location.getZ());
+    this.getLocation().setYaw(location.getYaw());
+    this.getLocation().setPitch(location.getPitch());
+    this.getLocation().setWorld(location.getWorld());
+    changeEntityLocation(location);
+  }
+
+  default void changeEntityLocation(Location location) {
+    getEntity().setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+  }
+
+  Location getLocation();
 
   V getEntity();
 

@@ -1,8 +1,7 @@
-package dev.buchstabet.packethelper;
+package dev.buchstabet.packethelper.property;
 
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 public interface AutoRotatable<V extends EntityLiving> extends Teleportable<V> {
 

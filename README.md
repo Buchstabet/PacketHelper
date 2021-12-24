@@ -7,47 +7,33 @@ You have to register each NPC or hologram in the manager, you do that with `Pack
 You have to compile the API into the finished plugin. ProtocolLib is required.
 
 ## Implementations
-
-### NPC (PacketEntity, Lookable, Clickable, Equipable)
-How to create a NPC?
-`NPC.create(Location location, boolean looking, Function<Player, String> nameFunction, JavaPlugin javaPlugin)`
-
-#### NameFunction?
-NameFunction sets the name of the npc, which can be different from player to player.
-
-### Hologram (PacketEntity)
-How to create a Hologram?
-`Hologram.create(Function<Player, String> nameFunction, Location location)`
-
-#### NameFunction?
-NameFunction sets the text of the hologram, which can be different from player to player.
-
-### RotatingHead (PacketEntity, AutoRotatable, Equipable)
-You can create rotating heads: `new RotatingHead(String).create(Location location)`
-
-### PacketAnimal (PacketEntity, Clickable, Lookable, Equipable)
-You can create any Entity using packets: `new PacketAnimal<V extends EntityInsentient>().create(Location location)`
+Call the constructor you want and register it in your `PacketEntityManager#register(PacketEntity)`
+- NPC (PacketEntity, Lookable, Clickable, Equipable)
+- Hologram (PacketEntity)
+- FlyingItem (PacketEntity, Teleportable, Equipable)
+- RotatingHead (FlyingItem)
+- PacketAnimal (PacketEntity, Clickable, Lookable, Equipable)
 
 ## Properties (Inheritances)
 
-### dev.buchstabet.packethelper.AutoRotatable
+### AutoRotatable
 Entities are rotated automatically
 
-### dev.buchstabet.packethelper.Clickable
+### Clickable
 You can register a ClickEvent: `Clickable#registerClickEvent(BiConsumer<Player, PacketContainer> consumer, JavaPlugin javaPlugin)`
 
-### dev.buchstabet.packethelper.Equipable
+### Equipable
 You can change the equipment of an entity: `Equipable#equip(Player player, int slot, ItemStack itemStack)`
 
-### dev.buchstabet.packethelper.Lookable
+### Lookable
 Entities inheriting from this type look after the player.
 
-### dev.buchstabet.packethelper.PacketEntity
+### PacketEntity
 Each entity to be handled by PacketHelper must inherit from PacketEntity.
 
-### dev.buchstabet.packethelper.Rotatable (Teleportable)
+### Rotatable (Teleportable)
 Entities with this type, can be rotated: `Rotatable#rotate(Player player, float yaw)`
 
-### dev.buchstabet.packethelper.Teleportable
+### Teleportable
 Change the location of an entity: `Teleportable#teleport(Player player)` 
 But do not forget to set the location: `Teleportable#setLocation(Location location)`

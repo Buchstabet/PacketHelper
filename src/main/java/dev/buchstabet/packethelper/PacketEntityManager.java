@@ -1,6 +1,9 @@
 package dev.buchstabet.packethelper;
 
-import dev.buchstabet.packethelper.implementation.PacketAnimal;
+import dev.buchstabet.packethelper.property.AutoRotatable;
+import dev.buchstabet.packethelper.property.Lookable;
+import dev.buchstabet.packethelper.property.PacketEntity;
+import dev.buchstabet.packethelper.property.Rotatable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -19,8 +22,7 @@ import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class PacketEntityManager extends ArrayList<PacketEntity<? extends EntityLiving>>
-    implements Listener {
+public class PacketEntityManager extends ArrayList<PacketEntity<? extends EntityLiving>> implements Listener {
 
   private int viewDistance = 40;
 
@@ -35,6 +37,7 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
   }
 
   public void register(PacketEntity<? extends EntityLiving> packetEntity) {
+    packetEntity.run();
     add(packetEntity);
   }
 
@@ -44,48 +47,48 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
 
   private PacketEntityManager start(JavaPlugin javaPlugin) {
     javaPlugin.getServer().getPluginManager().registerEvents(this, javaPlugin);
-    Bukkit.getScheduler()
-        .runTaskTimerAsynchronously(
-            javaPlugin,
-            () ->
-                players.forEach(player -> forEach(
-                        packetEntity -> {
-                          if (!(player.getWorld().equals(packetEntity.getLocation().getWorld())))
-                            return;
-                          if (packetEntity.getLocation().distance(player.getLocation())
-                                  > viewDistance
-                              && packetEntity.contains(player.getUniqueId())) {
-                            packetEntity.remove(player.getUniqueId());
-                            packetEntity.destroy(player);
-                          } else if (packetEntity.getLocation().distance(player.getLocation())
-                                  < viewDistance
-                              && !packetEntity.contains(player.getUniqueId())) {
-                            packetEntity.add(player.getUniqueId());
-                            packetEntity.spawn(player);
-                          } else {
+    Bukkit.getScheduler().runTaskTimerAsynchronously(javaPlugin, () -> players.forEach(player -> forEach(packetEntity -> {
+      if (!(player.getWorld().equals(packetEntity.getLocation().getWorld()))) {
+        packetEntity.remove(player.getUniqueId());
+        return;
+      }
 
-                            if (packetEntity instanceof Lookable) {
-                              Lookable<?> lookable = (Lookable<?>) packetEntity;
-                              if (lookable.isLooking()) {
-                                lookable.look(player);
-                              }
-                            }
+      if (packetEntity.getAllowed() != null && !packetEntity.getAllowed().apply(player)) {
+        if (packetEntity.contains(player.getUniqueId())) {
+          packetEntity.destroy(player);
+          packetEntity.remove(player.getUniqueId());
+        }
+        return;
+      }
 
-                            if (packetEntity instanceof AutoRotatable) {
-                              AutoRotatable<?> autoRotatable = (AutoRotatable<?>) packetEntity;
-                              Location location = autoRotatable.getLocation();
-                              location.setYaw(location.getYaw() + autoRotatable.getSpeed());
-                              autoRotatable.setLocation(location);
-                              autoRotatable.teleport(player);
-                              if (packetEntity instanceof Rotatable) {
-                                Rotatable<?> rotatable = (Rotatable<?>) packetEntity;
-                                rotatable.rotate(player, location.getYaw());
-                              }
-                            }
-                          }
-                        })),
-            10,
-            1);
+      if (packetEntity.getLocation().distance(player.getLocation()) > viewDistance && packetEntity.contains(player.getUniqueId())) {
+        packetEntity.remove(player.getUniqueId());
+        packetEntity.destroy(player);
+      } else if (packetEntity.getLocation().distance(player.getLocation()) < viewDistance && !packetEntity.contains(player.getUniqueId())) {
+        packetEntity.add(player.getUniqueId());
+        packetEntity.spawn(player);
+      } else {
+
+        if (packetEntity instanceof Lookable) {
+          Lookable<?> lookable = (Lookable<?>) packetEntity;
+          if (lookable.isLooking()) {
+            lookable.look(player);
+          }
+        }
+
+        if (packetEntity instanceof AutoRotatable) {
+          AutoRotatable<?> autoRotatable = (AutoRotatable<?>) packetEntity;
+          Location location = autoRotatable.getLocation();
+          location.setYaw(location.getYaw() + autoRotatable.getSpeed());
+          autoRotatable.setLocation(location);
+          autoRotatable.teleport(player);
+          if (packetEntity instanceof Rotatable) {
+            Rotatable<?> rotatable = (Rotatable<?>) packetEntity;
+            rotatable.rotate(player, location.getYaw());
+          }
+        }
+      }
+    })), 10, 3);
 
     return this;
   }

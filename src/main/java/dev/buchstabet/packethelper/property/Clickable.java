@@ -1,4 +1,4 @@
-package dev.buchstabet.packethelper;
+package dev.buchstabet.packethelper.property;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -13,10 +13,10 @@ import java.util.function.Consumer;
 
 public interface Clickable<V extends EntityLiving> {
 
-  default void registerClickEvent(Consumer<Player> consumer, JavaPlugin javaPlugin) {
+  default void registerClickEvent(Consumer<Player> consumer) {
     ProtocolLibrary.getProtocolManager()
             .addPacketListener(
-                    new PacketAdapter(javaPlugin, PacketType.Play.Client.USE_ENTITY) {
+                    new PacketAdapter(getPlugin(), PacketType.Play.Client.USE_ENTITY) {
                       @Override
                       public void onPacketReceiving(PacketEvent event) {
                         int entityId = (int) event.getPacket().getModifier().getValues().get(0);
@@ -38,5 +38,7 @@ public interface Clickable<V extends EntityLiving> {
   }
 
   V getEntity();
+
+  JavaPlugin getPlugin();
 
 }

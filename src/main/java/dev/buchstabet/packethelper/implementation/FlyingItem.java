@@ -1,17 +1,13 @@
 package dev.buchstabet.packethelper.implementation;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
-import dev.buchstabet.packethelper.AutoRotatable;
-import dev.buchstabet.packethelper.Equipable;
-import dev.buchstabet.packethelper.PacketEntity;
-import dev.buchstabet.packethelper.Teleportable;
+import dev.buchstabet.packethelper.property.Equipable;
+import dev.buchstabet.packethelper.property.PacketEntity;
+import dev.buchstabet.packethelper.property.Teleportable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.server.v1_8_R3.EntityArmorStand;
 import net.minecraft.server.v1_8_R3.World;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -23,26 +19,28 @@ import java.util.function.Function;
 
 @Getter
 @RequiredArgsConstructor
-public class FlyingItem extends ArrayList<UUID>
-    implements PacketEntity<EntityArmorStand>,
-        Teleportable<EntityArmorStand>,
-        Equipable<EntityArmorStand> {
+public class FlyingItem extends ArrayList<UUID> implements PacketEntity<EntityArmorStand>, Teleportable<EntityArmorStand>, Equipable<EntityArmorStand> {
 
   private EntityArmorStand entity;
-  private Location location;
+  private final Location location;
   private final ItemStack stack;
   @Nullable private final Function<Player, String> nameFunction;
+  @Nullable private final Function<Player, Boolean> allowed;
 
-  public FlyingItem create(Location location) {
+  public FlyingItem(Location location, ItemStack stack) {
+    this(location, stack, null, null);
+  }
+
+  @Override
+  public void run() {
     World world = ((CraftWorld) location.getWorld()).getHandle();
     entity = new EntityArmorStand(world);
-    setLocation(location);
     entity.setInvisible(true);
+    changeEntityLocation(location);
 
     if (nameFunction != null) {
       entity.setCustomNameVisible(true);
     }
-    return this;
   }
 
   @Override
@@ -50,12 +48,5 @@ public class FlyingItem extends ArrayList<UUID>
     if (nameFunction != null) entity.setCustomName(nameFunction.apply(player));
     PacketEntity.super.spawn(player);
     equip(player, 4, stack);
-  }
-
-  @Override
-  public void setLocation(Location location) {
-    this.location = location;
-    entity.setLocation(
-        location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
   }
 }

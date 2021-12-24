@@ -1,21 +1,19 @@
 package dev.buchstabet.packethelper.packethelepertesting;
 
-import dev.buchstabet.packethelper.AutoRotatable;
 import dev.buchstabet.packethelper.implementation.PacketAnimal;
+import dev.buchstabet.packethelper.property.AutoRotatable;
 import net.minecraft.server.v1_8_R3.EntityZombie;
-
-import java.util.Random;
-import java.util.function.Consumer;
+import org.bukkit.Location;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class Zombie extends PacketAnimal<EntityZombie> implements AutoRotatable<EntityZombie> {
 
-    public Zombie(Consumer<EntityZombie> config, boolean looking, Class<EntityZombie> clazz) {
-        super(config, looking, clazz);
+    public Zombie(Location location, Class<EntityZombie> clazz, JavaPlugin plugin) {
+        super(location, false, clazz, plugin);
     }
-
 
     @Override
     public float getSpeed() {
-        return 1;
+        return 5F;
     }
 }

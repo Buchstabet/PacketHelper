@@ -5,14 +5,15 @@ import dev.buchstabet.packethelper.property.Lookable;
 import dev.buchstabet.packethelper.property.PacketEntity;
 import dev.buchstabet.packethelper.property.Rotatable;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,32 +21,42 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.ArrayList;
 import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+/********************************************
+ * Copyright (c) by Konstantin Krötz
+ *******************************************/
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PacketEntityManager extends ArrayList<PacketEntity<? extends EntityLiving>> implements Listener {
 
-  private int viewDistance = 40;
+  @Getter private final JavaPlugin javaPlugin;
+  @Getter private final int viewDistance;
 
   private final List<Player> players = new ArrayList<>();
 
   public static PacketEntityManager create(JavaPlugin javaPlugin) {
-    return new PacketEntityManager().start(javaPlugin);
+    return new PacketEntityManager(javaPlugin, 40).start();
   }
 
   public static PacketEntityManager create(JavaPlugin javaPlugin, int viewDistance) {
-    return new PacketEntityManager(viewDistance).start(javaPlugin);
+    return new PacketEntityManager(javaPlugin, viewDistance).start();
   }
 
-  public void register(PacketEntity<? extends EntityLiving> packetEntity) {
-    packetEntity.run();
-    add(packetEntity);
+  @SafeVarargs
+  public final void register(PacketEntity<? extends EntityLiving>... packetEntities) {
+    for (PacketEntity<? extends EntityLiving> packetEntity : packetEntities) {
+      packetEntity.run();
+      add(packetEntity);
+    }
   }
 
-  public void unregister(PacketEntity<? extends EntityLiving> packetEntity) {
-    remove(packetEntity);
+  @SafeVarargs
+  public final void unregister(PacketEntity<? extends EntityLiving>... packetEntities) {
+    for (PacketEntity<? extends EntityLiving> packetEntity : packetEntities) {
+      remove(packetEntity);
+      packetEntity.forEach(uuid -> packetEntity.destroy(Bukkit.getPlayer(uuid)));
+    }
   }
 
-  private PacketEntityManager start(JavaPlugin javaPlugin) {
+  private PacketEntityManager start() {
     javaPlugin.getServer().getPluginManager().registerEvents(this, javaPlugin);
     Bukkit.getScheduler().runTaskTimerAsynchronously(javaPlugin, () -> players.forEach(player -> forEach(packetEntity -> {
       if (!(player.getWorld().equals(packetEntity.getLocation().getWorld()))) {
@@ -103,4 +114,11 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
   public void onJoin(PlayerJoinEvent e) {
     players.add(e.getPlayer());
   }
+
+  @EventHandler
+  public void onDeath(PlayerDeathEvent e) {
+    forEach(packetEntity -> packetEntity.remove(e.getEntity().getUniqueId()));
+  }
+
+
 }

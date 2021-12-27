@@ -4,6 +4,9 @@ import net.minecraft.server.v1_8_R3.EntityLiving;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+/********************************************
+ * Copyright (c) by Konstantin Krötz
+ *******************************************/
 public interface Lookable<V extends EntityLiving> extends Rotatable<V> {
 
   boolean isLooking();

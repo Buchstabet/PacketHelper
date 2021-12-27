@@ -4,13 +4,18 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
+import dev.buchstabet.packethelper.utils.PacketEntityClickedEvent;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.PacketPlayInUseEntity;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.function.Consumer;
 
+/********************************************
+ * Copyright (c) by Konstantin Krötz
+ *******************************************/
 public interface Clickable<V extends EntityLiving> {
 
   default void registerClickEvent(Consumer<Player> consumer) {
@@ -35,6 +40,10 @@ public interface Clickable<V extends EntityLiving> {
                         consumer.accept(event.getPlayer());
                       }
                     });
+  }
+
+  default void enableBukkitEventCall() {
+    registerClickEvent(player -> Bukkit.getServer().getPluginManager().callEvent(new PacketEntityClickedEvent(player, this)));
   }
 
   V getEntity();

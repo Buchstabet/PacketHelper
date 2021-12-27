@@ -6,7 +6,8 @@ import dev.buchstabet.packethelper.property.Lookable;
 import dev.buchstabet.packethelper.property.PacketEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.server.v1_8_R3.*;
+import net.minecraft.server.v1_8_R3.EntityInsentient;
+import net.minecraft.server.v1_8_R3.World;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
@@ -20,6 +21,9 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/********************************************
+ * Copyright (c) by Konstantin Krötz
+ *******************************************/
 @Getter
 @RequiredArgsConstructor
 public class PacketAnimal<V extends EntityInsentient> extends ArrayList<UUID> implements PacketEntity<V>, Clickable<V>, Lookable<V>, Equipable<V> {
@@ -54,5 +58,12 @@ public class PacketAnimal<V extends EntityInsentient> extends ArrayList<UUID> im
     } catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException e) {
       e.printStackTrace();
     }
+  }
+
+  @Override
+  public void spawn(Player player) {
+    PacketEntity.super.spawn(player);
+    teleport(player);
+    rotate(player, location.getYaw());
   }
 }

@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
+/********************************************
+ * Copyright (c) by Konstantin Krötz
+ *******************************************/
 public interface PacketEntity<V extends EntityLiving> extends List<UUID>, Runnable {
 
   @Nullable Function<Player, Boolean> getAllowed();

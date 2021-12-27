@@ -16,6 +16,9 @@ import java.lang.reflect.Field;
 import java.util.UUID;
 import java.util.function.Function;
 
+/********************************************
+ * Copyright (c) by Konstantin Krötz
+ *******************************************/
 @Getter
 public class RotatingHead extends FlyingItem implements AutoRotatable<EntityArmorStand> {
 

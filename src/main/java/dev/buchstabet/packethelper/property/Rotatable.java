@@ -7,6 +7,9 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
+/********************************************
+ * Copyright (c) by Konstantin Krötz
+ *******************************************/
 public interface Rotatable<V extends EntityLiving> extends Teleportable<V> {
 
   default void rotate(Player player, float yaw) {

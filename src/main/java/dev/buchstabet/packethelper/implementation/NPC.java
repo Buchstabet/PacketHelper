@@ -17,6 +17,7 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.util.CraftChatMessage;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,9 +26,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
+/********************************************
+ * Copyright (c) by Konstantin Krötz
+ *******************************************/
 @Getter
 @RequiredArgsConstructor
-public class NPC extends ArrayList<UUID> implements PacketEntity<EntityPlayer>, Lookable<EntityPlayer>, Clickable<EntityPlayer>, Equipable<EntityPlayer> {
+public class NPC extends ArrayList<UUID> implements PacketEntity<EntityPlayer>, Lookable<EntityPlayer>, Clickable<EntityPlayer>, Equipable<EntityPlayer>, Listener {
 
   private final Location location;
   @Nullable private final Property skinData;
@@ -62,7 +66,7 @@ public class NPC extends ArrayList<UUID> implements PacketEntity<EntityPlayer>, 
 
   public void spawn(Player player) {
     if (nameFunction != null)
-      new FieldManager<String>().setValue(GameProfile.class, "name", nameFunction.apply(player));
+      new FieldManager<String>().setValue(gameProfile, "name", nameFunction.apply(player));
     if (skinData == null) {
       gameProfile.getProperties().removeAll("textures");
       gameProfile.getProperties().putAll("textures", ((CraftPlayer) player).getProfile().getProperties().get("textures"));
@@ -78,6 +82,7 @@ public class NPC extends ArrayList<UUID> implements PacketEntity<EntityPlayer>, 
 
     b.sendPacket(packetPlayOutNamedEntitySpawn);
     teleport(player);
+    rotate(player, location.getYaw());
 
     Bukkit.getScheduler().runTaskLater(plugin, () -> {
       PacketPlayOutPlayerInfo packetPlayOutPlayerInfo = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, entity);

@@ -10,6 +10,9 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.UUID;
 
+/********************************************
+ * Copyright (c) by Konstantin Krötz
+ *******************************************/
 public interface Teleportable<V extends EntityLiving> extends List<UUID> {
 
   default void teleport(Player player) {

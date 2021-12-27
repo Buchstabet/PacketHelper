@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.Function;
 
+/********************************************
+ * Copyright (c) by Konstantin Krötz
+ *******************************************/
 @Getter
 @RequiredArgsConstructor
 public class FlyingItem extends ArrayList<UUID> implements PacketEntity<EntityArmorStand>, Teleportable<EntityArmorStand>, Equipable<EntityArmorStand> {

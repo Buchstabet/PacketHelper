@@ -6,6 +6,9 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 
+/********************************************
+ * Copyright (c) by Konstantin Krötz
+ *******************************************/
 public interface Equipable<V extends EntityLiving> {
 
   default void equip(Player player, int slot, org.bukkit.inventory.ItemStack itemStack) {

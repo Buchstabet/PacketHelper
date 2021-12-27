@@ -11,6 +11,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+/********************************************
+ * Copyright (c) by Konstantin Krötz
+ *******************************************/
 public final class PacketHeleperTesting extends JavaPlugin {
 
   public static PacketEntityManager manager;

@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ Copyright (c) by Konstantin Krötz
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -6,7 +9,7 @@
 
     <groupId>dev.buchstabet</groupId>
     <artifactId>PacketHelper</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.4</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -15,8 +18,9 @@
 
     <distributionManagement>
         <repository>
-            <id>space-maven</id>
-            <url>https://maven.pkg.jetbrains.space/buchstabet/p/projekt/maven</url>
+            <id>central</id>
+            <name>v28343-releases</name>
+            <url>http://45.93.250.34:8081/artifactory/libs-release-local</url>
         </repository>
     </distributionManagement>
 

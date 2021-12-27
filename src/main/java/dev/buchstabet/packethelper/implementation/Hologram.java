@@ -3,7 +3,7 @@ package dev.buchstabet.packethelper.implementation;
 import dev.buchstabet.packethelper.property.PacketEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.server.v1_8_R3.*;
+import net.minecraft.server.v1_8_R3.EntityArmorStand;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.Function;
 
+/********************************************
+ * Copyright (c) by Konstantin Krötz
+ *******************************************/
 @Getter
 @RequiredArgsConstructor
 public class Hologram extends ArrayList<UUID> implements PacketEntity<EntityArmorStand> {

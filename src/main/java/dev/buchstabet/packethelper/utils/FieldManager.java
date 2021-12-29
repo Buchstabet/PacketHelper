@@ -5,9 +5,9 @@ import java.lang.reflect.Field;
 /********************************************
  * Copyright (c) by Konstantin Krötz
  *******************************************/
-public class FieldManager<V> {
+public class FieldManager {
 
-  public void setValue(Object o, String name, V value) {
+  public void setValue(Object o, String name, Object value) {
     try {
       Field field = o.getClass().getDeclaredField(name);
       field.setAccessible(true);
@@ -19,7 +19,7 @@ public class FieldManager<V> {
 
   }
 
-  public V getValue(Class<V> clazz, Object obj, String name) {
+  public <T> T getValue(Class<T> clazz, Object obj, String name) {
     try {
       Field field = obj.getClass().getDeclaredField(name);
       field.setAccessible(true);

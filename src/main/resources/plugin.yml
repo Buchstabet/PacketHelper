@@ -1,0 +1,8 @@
+name: PacketHelper
+main: dev.buchstabet.packethelper.PacketHelperPluginLoader
+version: '${project.version}'
+author: Buchstabet
+loadbefore:
+  - ProtocolLib
+depend:
+  - ProtocolLib

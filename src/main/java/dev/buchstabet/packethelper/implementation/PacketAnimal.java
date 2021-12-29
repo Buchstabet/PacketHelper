@@ -11,7 +11,6 @@ import net.minecraft.server.v1_8_R3.World;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
@@ -33,18 +32,15 @@ public class PacketAnimal<V extends EntityInsentient> extends ArrayList<UUID> im
   private final Location location;
   private final boolean looking;
   private final Class<V> clazz;
-  private final JavaPlugin plugin;
-  @Nullable
-  @Getter
-  private final Function<Player, Boolean> allowed;
+  @Nullable private final Function<Player, Boolean> allowed;
 
-  public PacketAnimal(Consumer<V> config, Location location, boolean looking, Class<V> clazz, JavaPlugin plugin) {
-    this(config, location, looking, clazz, plugin, null);
+  public PacketAnimal(Consumer<V> config, Location location, boolean looking, Class<V> clazz) {
+    this(config, location, looking, clazz, null);
   }
 
-  public PacketAnimal(Location location, boolean looking, Class<V> clazz, JavaPlugin plugin) {
+  public PacketAnimal(Location location, boolean looking, Class<V> clazz) {
     this(v -> {
-    }, location, looking, clazz, plugin, null);
+    }, location, looking, clazz, null);
   }
 
   @Override

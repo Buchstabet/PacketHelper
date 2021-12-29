@@ -9,7 +9,7 @@
 
     <groupId>dev.buchstabet</groupId>
     <artifactId>PacketHelper</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.6-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -17,11 +17,11 @@
     </properties>
 
     <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>v28343-releases</name>
-            <url>http://45.93.250.34:8081/artifactory/libs-release-local</url>
-        </repository>
+        <snapshotRepository>
+            <id>maybemc-maven-snapshots</id>
+            <name>maybemc-snapshots</name>
+            <url>https://maven.pkg.jetbrains.space/maybemc/p/maybemc/maven-snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <repositories>

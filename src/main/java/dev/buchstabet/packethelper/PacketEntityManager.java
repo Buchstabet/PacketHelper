@@ -13,9 +13,9 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -24,20 +24,15 @@ import java.util.List;
 /********************************************
  * Copyright (c) by Konstantin Krötz
  *******************************************/
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class PacketEntityManager extends ArrayList<PacketEntity<? extends EntityLiving>> implements Listener {
 
   @Getter private final JavaPlugin javaPlugin;
-  @Getter private final int viewDistance;
 
-  private final List<Player> players = new ArrayList<>();
+  final List<Player> players = new ArrayList<>();
 
-  public static PacketEntityManager create(JavaPlugin javaPlugin) {
-    return new PacketEntityManager(javaPlugin, 40).start();
-  }
-
-  public static PacketEntityManager create(JavaPlugin javaPlugin, int viewDistance) {
-    return new PacketEntityManager(javaPlugin, viewDistance).start();
+  public static PacketEntityManager getInstance() {
+    return PacketHelperPluginLoader.getPacketEntityManager();
   }
 
   @SafeVarargs
@@ -56,7 +51,7 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
     }
   }
 
-  private PacketEntityManager start() {
+  void start(int viewDistance) {
     javaPlugin.getServer().getPluginManager().registerEvents(this, javaPlugin);
     Bukkit.getScheduler().runTaskTimerAsynchronously(javaPlugin, () -> players.forEach(player -> forEach(packetEntity -> {
       if (!(player.getWorld().equals(packetEntity.getLocation().getWorld()))) {
@@ -101,7 +96,6 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
       }
     })), 10, 3);
 
-    return this;
   }
 
   @EventHandler
@@ -116,8 +110,8 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
   }
 
   @EventHandler
-  public void onDeath(PlayerDeathEvent e) {
-    forEach(packetEntity -> packetEntity.remove(e.getEntity().getUniqueId()));
+  public void onDeath(PlayerRespawnEvent e) {
+    forEach(packetEntity -> packetEntity.remove(e.getPlayer().getUniqueId()));
   }
 
 

@@ -1,10 +1,10 @@
 # PacketHelper
-First you need a instance of `PacketEntityManager.class`.
-Create a new instance using `PacketEntityManager.create(JavaPlugin);`.
+First you need a `PacketEntityManager.class`.
+You can get it by using `PacketEntityManager.getInstance()`.
 You have to register each NPC or hologram in the manager, you do that with `PacketEntityManager#register()`.
 
 ## Installation
-You have to compile the API into the finished plugin. ProtocolLib is required.
+Put the compiled API into the plugin folder. ProtocolLib is required.
 
 ## Implementations
 Call the constructor you want and register it in your `PacketEntityManager#register(PacketEntity)`

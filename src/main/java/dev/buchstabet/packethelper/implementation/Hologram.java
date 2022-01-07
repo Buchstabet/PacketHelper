@@ -31,6 +31,7 @@ public class Hologram extends ArrayList<UUID> implements PacketEntity<EntityArmo
 
   @Override
   public void run() {
+    location.add(0, 1.8, 0);
     entity = new EntityArmorStand(((CraftWorld) location.getWorld()).getHandle());
     entity.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
     entity.setCustomNameVisible(true);

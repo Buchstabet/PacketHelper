@@ -35,6 +35,7 @@ public class Hologram extends ArrayList<UUID> implements PacketEntity<EntityArmo
     entity.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
     entity.setCustomNameVisible(true);
     entity.setInvisible(true);
+    entity.n(true);
   }
 
   @Override

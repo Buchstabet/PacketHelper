@@ -64,7 +64,7 @@ public class NPC extends ArrayList<UUID> implements PacketEntity<EntityPlayer>, 
     this(location, new Property("textures", property[0], property[1]), null, looking, null);
   }
 
-  public void spawn(Player player) {
+  public synchronized void spawn(Player player) {
     if (nameFunction != null)
       new FieldManager().setValue(gameProfile, "name", nameFunction.apply(player));
     if (skinData == null) {

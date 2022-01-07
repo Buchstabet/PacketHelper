@@ -25,10 +25,10 @@ public interface Clickable<V extends EntityLiving> {
                     new PacketAdapter(JavaPlugin.getPlugin(PacketHelperPluginLoader.class), PacketType.Play.Client.USE_ENTITY) {
                       @Override
                       public void onPacketReceiving(PacketEvent event) {
-                        int entityId = (int) event.getPacket().getModifier().getValues().get(0);
-                        PacketPlayInUseEntity.EnumEntityUseAction action =
-                                (PacketPlayInUseEntity.EnumEntityUseAction)
-                                        event.getPacket().getModifier().getValues().get(1);
+                        int entityId = event.getPacket().getIntegers().read(0);
+                          PacketPlayInUseEntity.EnumEntityUseAction action =
+                                  (PacketPlayInUseEntity.EnumEntityUseAction)
+                                          event.getPacket().getModifier().getValues().get(1);
 
                         if (!action.equals(PacketPlayInUseEntity.EnumEntityUseAction.INTERACT)) {
                           return;

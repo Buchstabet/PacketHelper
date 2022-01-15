@@ -2,9 +2,7 @@ package dev.buchstabet.packethelper.implementation;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import dev.buchstabet.packethelper.property.AutoRotatable;
 import lombok.Getter;
-import net.minecraft.server.v1_8_R3.EntityArmorStand;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -20,13 +18,10 @@ import java.util.function.Function;
  * Copyright (c) by Konstantin Krötz
  *******************************************/
 @Getter
-public class RotatingHead extends FlyingItem implements AutoRotatable<EntityArmorStand> {
-
-    private final float speed;
+public class RotatingHead extends RotatingItem {
 
     public RotatingHead(Location location, String value, @Nullable Function<Player, String> nameFunction, @Nullable Function<Player, Boolean> allowed, float speed) {
-        super(location, createHead(value), nameFunction, allowed);
-        this.speed = speed;
+        super(location, createHead(value), nameFunction, allowed, speed);
     }
 
     public RotatingHead(Location location, String value, float speed) {

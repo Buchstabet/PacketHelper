@@ -53,48 +53,51 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
 
   void start(int viewDistance) {
     javaPlugin.getServer().getPluginManager().registerEvents(this, javaPlugin);
-    Bukkit.getScheduler().runTaskTimerAsynchronously(javaPlugin, () -> players.forEach(player -> forEach(packetEntity -> {
-      if (!(player.getWorld().equals(packetEntity.getLocation().getWorld()))) {
-        packetEntity.remove(player.getUniqueId());
-        return;
-      }
-
-      if (packetEntity.getAllowed() != null && !packetEntity.getAllowed().apply(player)) {
-        if (packetEntity.contains(player.getUniqueId())) {
-          packetEntity.destroy(player);
+    Bukkit.getScheduler().runTaskTimerAsynchronously(javaPlugin, () -> forEach(packetEntity -> {
+      for (Player player : Bukkit.getOnlinePlayers()) {
+        if (!(player.getWorld().equals(packetEntity.getLocation().getWorld()))) {
           packetEntity.remove(player.getUniqueId());
+          return;
         }
-        return;
-      }
 
-      if (packetEntity.getLocation().distance(player.getLocation()) > viewDistance && packetEntity.contains(player.getUniqueId())) {
-        packetEntity.remove(player.getUniqueId());
-        packetEntity.destroy(player);
-      } else if (packetEntity.getLocation().distance(player.getLocation()) < viewDistance && !packetEntity.contains(player.getUniqueId())) {
-        packetEntity.add(player.getUniqueId());
-        packetEntity.spawn(player);
-      } else {
+        if (packetEntity.getAllowed() != null && !packetEntity.getAllowed().apply(player)) {
+          if (packetEntity.contains(player.getUniqueId())) {
+            packetEntity.destroy(player);
+            packetEntity.remove(player.getUniqueId());
+          }
+          return;
+        }
 
-        if (packetEntity instanceof Lookable) {
-          Lookable<?> lookable = (Lookable<?>) packetEntity;
-          if (lookable.isLooking()) {
-            lookable.look(player);
+        if (packetEntity.getLocation().distance(player.getLocation()) > viewDistance && packetEntity.contains(player.getUniqueId())) {
+          packetEntity.remove(player.getUniqueId());
+          packetEntity.destroy(player);
+        } else if (packetEntity.getLocation().distance(player.getLocation()) < viewDistance && !packetEntity.contains(player.getUniqueId())) {
+          packetEntity.add(player.getUniqueId());
+          packetEntity.spawn(player);
+          return;
+        } else {
+
+          if (packetEntity instanceof Lookable) {
+            Lookable<?> lookable = (Lookable<?>) packetEntity;
+            if (lookable.isLooking()) {
+              lookable.look(player);
+            }
+          }
+
+          if (packetEntity instanceof AutoRotatable) {
+            AutoRotatable<?> autoRotatable = (AutoRotatable<?>) packetEntity;
+            Location location = autoRotatable.getLocation();
+            location.setYaw(location.getYaw() + autoRotatable.getSpeed());
+            autoRotatable.setLocation(location);
+            autoRotatable.teleport(player);
+            if (packetEntity instanceof Rotatable) {
+              Rotatable<?> rotatable = (Rotatable<?>) packetEntity;
+              rotatable.rotate(player, location.getYaw());
+            }
           }
         }
-
-        if (packetEntity instanceof AutoRotatable) {
-          AutoRotatable<?> autoRotatable = (AutoRotatable<?>) packetEntity;
-          Location location = autoRotatable.getLocation();
-          location.setYaw(location.getYaw() + autoRotatable.getSpeed());
-          autoRotatable.setLocation(location);
-          autoRotatable.teleport(player);
-          if (packetEntity instanceof Rotatable) {
-            Rotatable<?> rotatable = (Rotatable<?>) packetEntity;
-            rotatable.rotate(player, location.getYaw());
-          }
-        }
       }
-    })), 10, 3);
+    }), 10, 3);
 
   }
 

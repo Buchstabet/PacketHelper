@@ -57,7 +57,7 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
       for (Player player : Bukkit.getOnlinePlayers()) {
         if (!(player.getWorld().equals(packetEntity.getLocation().getWorld()))) {
           packetEntity.remove(player.getUniqueId());
-          return;
+          continue;
         }
 
         if (packetEntity.getAllowed() != null && !packetEntity.getAllowed().apply(player)) {
@@ -65,7 +65,7 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
             packetEntity.destroy(player);
             packetEntity.remove(player.getUniqueId());
           }
-          return;
+          continue;
         }
 
         if (packetEntity.getLocation().distance(player.getLocation()) > viewDistance && packetEntity.contains(player.getUniqueId())) {
@@ -76,7 +76,6 @@ public class PacketEntityManager extends ArrayList<PacketEntity<? extends Entity
           packetEntity.spawn(player);
           return;
         } else {
-
           if (packetEntity instanceof Lookable) {
             Lookable<?> lookable = (Lookable<?>) packetEntity;
             if (lookable.isLooking()) {

@@ -11,7 +11,9 @@ import net.minecraft.server.v1_8_R3.PacketPlayInUseEntity;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /********************************************
@@ -20,10 +22,10 @@ import java.util.function.Consumer;
 public interface Clickable<V extends EntityLiving> {
 
   default void registerClickEvent(Consumer<Player> consumer) {
-    registerClickEvent(consumer, PacketPlayInUseEntity.EnumEntityUseAction.INTERACT);
+    registerClickEvent((player, action) -> consumer.accept(player), PacketPlayInUseEntity.EnumEntityUseAction.INTERACT);
   }
 
-  default void registerClickEvent(Consumer<Player> consumer, PacketPlayInUseEntity.EnumEntityUseAction enumEntityUseAction) {
+  default void registerClickEvent(BiConsumer<Player, PacketPlayInUseEntity.EnumEntityUseAction> consumer, @Nullable PacketPlayInUseEntity.EnumEntityUseAction enumEntityUseAction) {
     ProtocolLibrary.getProtocolManager()
             .addPacketListener(
                     new PacketAdapter(JavaPlugin.getPlugin(PacketHelperPluginLoader.class), PacketType.Play.Client.USE_ENTITY) {
@@ -34,15 +36,10 @@ public interface Clickable<V extends EntityLiving> {
                                 (PacketPlayInUseEntity.EnumEntityUseAction)
                                         event.getPacket().getModifier().getValues().get(1);
 
-                        if (!action.equals(enumEntityUseAction)) {
-                          return;
-                        }
+                        if (enumEntityUseAction != null && !action.equals(enumEntityUseAction)) return;
+                        if (entityId != getEntity().getId()) return;
 
-                        if (entityId != getEntity().getId()) {
-                          return;
-                        }
-
-                        consumer.accept(event.getPlayer());
+                        consumer.accept(event.getPlayer(), action);
                       }
                     });
   }
